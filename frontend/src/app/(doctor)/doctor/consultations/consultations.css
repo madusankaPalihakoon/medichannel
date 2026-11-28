@@ -34,8 +34,8 @@
 .back-button {
   padding: 11px 17px;
   border-radius: 8px;
-  background: #eee8fa;
-  color: #6941b5;
+  background: #1c3b55;
+  color: #eee8fa;
   text-decoration: none;
   font-weight: bold;
   white-space: nowrap;
@@ -134,7 +134,7 @@
   padding: 14px;
   border: none;
   border-radius: 9px;
-  background: #7554c8;
+  background: #1c3b55;
   color: white;
   font-size: 15px;
   font-weight: bold;

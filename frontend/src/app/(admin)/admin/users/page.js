@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -34,18 +35,32 @@ export default function UsersPage() {
   const [role, setRole] = useState("Doctor");
   const [message, setMessage] = useState("");
 
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [resetMessage, setResetMessage] = useState("");
+
   function addUser(event) {
     event.preventDefault();
 
+    const emailExists = users.some(
+      (user) => user.email.toLowerCase() === email.trim().toLowerCase()
+    );
+
+    if (emailExists) {
+      setMessage("This email address already exists.");
+      return;
+    }
+
     const newUser = {
       id: Date.now(),
-      name,
-      email,
+      name: name.trim(),
+      email: email.trim(),
       role,
       status: "Active",
     };
 
-    setUsers([...users, newUser]);
+    setUsers((previousUsers) => [...previousUsers, newUser]);
     setName("");
     setEmail("");
     setRole("Doctor");
@@ -53,20 +68,59 @@ export default function UsersPage() {
   }
 
   function toggleStatus(id) {
-    setUsers(
-      users.map((user) =>
+    setUsers((previousUsers) =>
+      previousUsers.map((user) =>
         user.id === id
           ? {
               ...user,
-              status: user.status === "Active" ? "Inactive" : "Active",
+              status:
+                user.status === "Active" ? "Inactive" : "Active",
             }
           : user
       )
     );
+
+    setMessage("Account status updated.");
   }
 
-  function resetPassword(userName) {
-    setMessage(`Password reset requested for ${userName}.`);
+  function openResetPassword(user) {
+    setSelectedUser(user);
+    setNewPassword("");
+    setConfirmPassword("");
+    setResetMessage("");
+    setMessage("");
+  }
+
+  function closeResetPassword() {
+    setSelectedUser(null);
+    setNewPassword("");
+    setConfirmPassword("");
+    setResetMessage("");
+  }
+
+  function handlePasswordReset(event) {
+    event.preventDefault();
+
+    if (newPassword.length < 8) {
+      setResetMessage("Password must contain at least 8 characters.");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setResetMessage("Passwords do not match.");
+      return;
+    }
+
+    // Frontend demonstration only.
+    // Connect this action to the Spring Boot password reset API
+    // before using it with real staff accounts.
+
+    setResetMessage(
+      "Password validation successful. Backend API connection is required to update the actual account password."
+    );
+
+    setNewPassword("");
+    setConfirmPassword("");
   }
 
   return (
@@ -164,6 +218,7 @@ export default function UsersPage() {
                   <td>
                     <div className="users-actions">
                       <button
+                        type="button"
                         className="users-status-button"
                         onClick={() => toggleStatus(user.id)}
                       >
@@ -173,8 +228,9 @@ export default function UsersPage() {
                       </button>
 
                       <button
+                        type="button"
                         className="users-reset-button"
-                        onClick={() => resetPassword(user.name)}
+                        onClick={() => openResetPassword(user)}
                       >
                         Reset Password
                       </button>
@@ -186,6 +242,91 @@ export default function UsersPage() {
           </table>
         </div>
       </section>
+
+      {selectedUser && (
+        <div className="reset-modal-overlay">
+          <div
+            className="reset-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reset-title"
+          >
+            <button
+              type="button"
+              className="reset-close"
+              onClick={closeResetPassword}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+
+            <h2 id="reset-title">Reset Password</h2>
+
+            <p>
+              Set a new password for this staff account.
+            </p>
+
+            <div className="reset-user-info">
+              <strong>{selectedUser.name}</strong>
+              <span>{selectedUser.email}</span>
+              <span>{selectedUser.role}</span>
+            </div>
+
+            <form onSubmit={handlePasswordReset}>
+              <div className="users-field">
+                <label>New Password</label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(event) =>
+                    setNewPassword(event.target.value)
+                  }
+                  placeholder="Enter new password"
+                  minLength={8}
+                  required
+                />
+              </div>
+
+              <div className="users-field">
+                <label>Confirm New Password</label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(event) =>
+                    setConfirmPassword(event.target.value)
+                  }
+                  placeholder="Confirm new password"
+                  minLength={8}
+                  required
+                />
+              </div>
+
+              {resetMessage && (
+                <p className="reset-message" role="status">
+                  {resetMessage}
+                </p>
+              )}
+
+              <div className="reset-modal-actions">
+                <button
+                  type="button"
+                  className="reset-cancel-button"
+                  onClick={closeResetPassword}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="users-reset-button"
+                >
+                  Confirm Reset
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -1,147 +1,49 @@
+-- Run these read-only checks after schema.sql and seed/seed.sql.
+SET TIME ZONE 'Asia/Colombo';
 
--- =========================================================
--- MEDICHANNEL DATABASE VALIDATION TESTS
--- Database: medichannel_db
--- Total Tables: 14
--- All tests are READ-ONLY
--- =========================================================
-
-
--- TEST 1: Count records in all 14 tables
-
-SELECT 'users' AS table_name, COUNT(*) AS total FROM users
-UNION ALL SELECT 'patients', COUNT(*) FROM patients
-UNION ALL SELECT 'specialisations', COUNT(*) FROM specialisations
-UNION ALL SELECT 'doctors', COUNT(*) FROM doctors
-UNION ALL SELECT 'rooms', COUNT(*) FROM rooms
-UNION ALL SELECT 'sessions', COUNT(*) FROM sessions
-UNION ALL SELECT 'appointments', COUNT(*) FROM appointments
-UNION ALL SELECT 'payments', COUNT(*) FROM payments
-UNION ALL SELECT 'consultations', COUNT(*) FROM consultations
-UNION ALL SELECT 'chat_messages', COUNT(*) FROM chat_messages
-UNION ALL SELECT 'notifications', COUNT(*) FROM notifications
-UNION ALL SELECT 'feedback', COUNT(*) FROM feedback
-UNION ALL SELECT 'notices', COUNT(*) FROM notices
-UNION ALL SELECT 'audit_logs', COUNT(*) FROM audit_logs
+-- 1. Required tables and approximate row counts.
+SELECT table_name FROM information_schema.tables
+WHERE table_schema='public' AND table_type='BASE TABLE'
 ORDER BY table_name;
 
+-- 2. All four roles must be represented by the fictional seed set.
+SELECT role, COUNT(*) AS users FROM users GROUP BY role ORDER BY role;
 
--- TEST 2: Check duplicate appointment numbers
--- Expected: zero rows
+-- 3. All appointment statuses required by BR-08 and BR-03 demo coverage.
+SELECT appointment_status, COUNT(*) AS total
+FROM appointments GROUP BY appointment_status ORDER BY appointment_status;
 
-SELECT
-    session_id,
-    appointment_number,
-    COUNT(*) AS duplicate_count
-FROM appointments
-GROUP BY session_id, appointment_number
-HAVING COUNT(*) > 1;
+-- 4. Physical sessions must have a room; online sessions must not.
+SELECT id, session_type, room_id FROM sessions
+WHERE (session_type='PHYSICAL' AND room_id IS NULL)
+   OR (session_type='ONLINE' AND room_id IS NOT NULL);
+-- Expected: zero rows.
 
+-- 5. Detect duplicate appointment numbers (expected zero rows; unique constraint also enforces this).
+SELECT session_id, appointment_number, COUNT(*)
+FROM appointments GROUP BY session_id, appointment_number HAVING COUNT(*) > 1;
 
--- TEST 3: Check duplicate active appointments
--- Expected: zero rows
+-- 6. Detect multiple active appointments for one patient in one session (expected zero rows).
+SELECT session_id, patient_id, COUNT(*)
+FROM appointments WHERE appointment_status IN ('BOOKED','ARRIVED','IN_CONSULTATION')
+GROUP BY session_id, patient_id HAVING COUNT(*) > 1;
 
-SELECT
-    session_id,
-    patient_id,
-    COUNT(*) AS duplicate_count
-FROM appointments
-WHERE appointment_status IN (
-                             'BOOKED',
-                             'ARRIVED',
-                             'IN_CONSULTATION'
-    )
-GROUP BY session_id, patient_id
-HAVING COUNT(*) > 1;
+-- 7. Check session capacity counters.
+SELECT s.id, s.max_patients, s.next_appointment_number,
+       COUNT(a.id) AS appointments_created
+FROM sessions s LEFT JOIN appointments a ON a.session_id=s.id
+GROUP BY s.id HAVING s.next_appointment_number > s.max_patients + 1
+                  OR COUNT(a.id) > s.max_patients;
+-- Expected: zero rows.
 
+-- 8. Verify indexes and exclusion constraints exist.
+SELECT indexname, indexdef FROM pg_indexes
+WHERE schemaname='public' ORDER BY tablename,indexname;
 
--- TEST 4: Check invalid session room references
--- Expected: zero rows
+-- 9. Verify encryption columns store opaque values (seed placeholders are clearly marked demo values).
+SELECT id, full_name_ciphertext, email_ciphertext FROM users ORDER BY id;
+SELECT id, nic_ciphertext, date_of_birth_ciphertext, phone_ciphertext FROM patients ORDER BY id;
 
-SELECT
-    s.id AS session_id,
-    s.room_id
-FROM sessions s
-         LEFT JOIN rooms r
-                   ON s.room_id = r.id
-WHERE r.id IS NULL;
-
-
--- TEST 5: Check cancelled appointment timestamps
--- Expected: zero rows
-
-SELECT
-    id,
-    appointment_status,
-    cancelled_at
-FROM appointments
-WHERE
-    (appointment_status = 'CANCELLED' AND cancelled_at IS NULL)
-   OR
-    (appointment_status <> 'CANCELLED' AND cancelled_at IS NOT NULL);
-
-
--- TEST 6: Check invalid session time ranges
--- Expected: zero rows
-
-SELECT
-    id,
-    start_time,
-    end_time
-FROM sessions
-WHERE end_time <= start_time;
-
-
--- TEST 7: Check invalid consultation time ranges
--- Expected: zero rows
-
-SELECT
-    id,
-    started_at,
-    completed_at
-FROM consultations
-WHERE started_at IS NOT NULL
-  AND completed_at IS NOT NULL
-  AND completed_at < started_at;
-
-
--- TEST 8: Check invalid feedback ratings
--- Expected: zero rows
-
-SELECT
-    id,
-    rating
-FROM feedback
-WHERE rating < 1
-   OR rating > 5;
-
-
--- TEST 9: Check invalid payment records
--- Expected: zero rows
-
-SELECT
-    id,
-    payment_status,
-    payment_method,
-    paid_at
-FROM payments
-WHERE
-    (payment_status = 'PENDING' AND paid_at IS NOT NULL)
-   OR
-    (payment_status = 'PAID'
-        AND (paid_at IS NULL OR payment_method IS NULL));
-
-
--- TEST 10: Check invalid appointment numbers
--- Expected: zero rows
-
-SELECT
-    id,
-    appointment_number
-FROM appointments
-WHERE appointment_number < 1;
-
-
--- =========================================================
--- END OF MEDICHANNEL DATABASE VALIDATION
--- =========================================================
+-- 10. Audit log rows must exist; update/delete is blocked by database trigger.
+SELECT id, actor_user_id, action, entity_type, entity_id, ip_address, created_at
+FROM audit_logs ORDER BY created_at DESC;

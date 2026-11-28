@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -31,7 +30,7 @@ const initialPayments = [
     appointmentId: "APT003",
     patient: "Amal Fernando",
     amount: 2000,
-    method: "Online",
+    method: "Bank Transfer",
     date: "2026-11-13",
     status: "Paid"
   },
@@ -43,7 +42,7 @@ const initialPayments = [
     amount: 3500,
     method: "Cash",
     date: "2026-11-13",
-    status: "Refunded"
+    status: "Paid"
   }
 ];
 
@@ -140,6 +139,7 @@ export default function PaymentsPage() {
 
   return (
     <main className="payment-page">
+
       <header className="payment-header">
         <div>
           <p className="payment-brand">MEDICHANNEL / MANAGER</p>
@@ -152,7 +152,10 @@ export default function PaymentsPage() {
         </a>
       </header>
 
+      {/* Payment Statistics */}
+
       <section className="payment-stats">
+
         <div className="payment-stat-card">
           <span>Total Payments</span>
           <strong>{payments.length}</strong>
@@ -177,17 +180,26 @@ export default function PaymentsPage() {
           <span>Pending Payments</span>
           <strong>{pendingCount}</strong>
         </div>
+
       </section>
 
+      {/* Add New Payment */}
+
       <section className="payment-panel">
+
         <h2>Add New Payment</h2>
+
         <p className="payment-description">
           Enter the details to create a patient payment record.
         </p>
 
         <form className="payment-form" onSubmit={handleSubmit}>
+
           <div className="payment-field">
-            <label htmlFor="payment-appointment">Appointment ID</label>
+            <label htmlFor="payment-appointment">
+              Appointment ID
+            </label>
+
             <input
               id="payment-appointment"
               value={appointmentId}
@@ -198,7 +210,10 @@ export default function PaymentsPage() {
           </div>
 
           <div className="payment-field">
-            <label htmlFor="payment-patient">Patient Name</label>
+            <label htmlFor="payment-patient">
+              Patient Name
+            </label>
+
             <input
               id="payment-patient"
               value={patient}
@@ -209,7 +224,10 @@ export default function PaymentsPage() {
           </div>
 
           <div className="payment-field">
-            <label htmlFor="payment-amount">Amount (LKR)</label>
+            <label htmlFor="payment-amount">
+              Amount (LKR)
+            </label>
+
             <input
               id="payment-amount"
               type="number"
@@ -223,21 +241,26 @@ export default function PaymentsPage() {
           </div>
 
           <div className="payment-field">
-            <label htmlFor="payment-method">Payment Method</label>
+            <label htmlFor="payment-method">
+              Payment Method
+            </label>
+
             <select
               id="payment-method"
               value={method}
               onChange={event => setMethod(event.target.value)}
             >
-              <option>Cash</option>
-              <option>Card</option>
-              <option>Online</option>
-              <option>Bank Transfer</option>
+              <option value="Cash">Cash</option>
+              <option value="Card">Card</option>
+              <option value="Bank Transfer">Bank Transfer</option>
             </select>
           </div>
 
           <div className="payment-field">
-            <label htmlFor="payment-date">Payment Date</label>
+            <label htmlFor="payment-date">
+              Payment Date
+            </label>
+
             <input
               id="payment-date"
               type="date"
@@ -248,21 +271,30 @@ export default function PaymentsPage() {
           </div>
 
           <div className="payment-form-actions">
-            <button type="submit" className="payment-primary-button">
+            <button
+              type="submit"
+              className="payment-primary-button"
+            >
               Add Payment
             </button>
           </div>
+
         </form>
       </section>
 
+      {/* Payment Records */}
+
       <section className="payment-panel">
+
         <div className="payment-list-heading">
+
           <div>
             <h2>Payment Records</h2>
             <p>View and manage registered patient payments.</p>
           </div>
 
           <div className="payment-filters">
+
             <input
               className="payment-search"
               value={search}
@@ -276,16 +308,18 @@ export default function PaymentsPage() {
               onChange={event => setFilterStatus(event.target.value)}
               aria-label="Filter payments by status"
             >
-              <option>All</option>
-              <option>Paid</option>
-              <option>Pending</option>
-              <option>Refunded</option>
+              <option value="All">All</option>
+              <option value="Paid">Paid</option>
+              <option value="Pending">Pending</option>
             </select>
+
           </div>
         </div>
 
         <div className="payment-table-wrapper">
+
           <table className="payment-table">
+
             <thead>
               <tr>
                 <th>Payment ID</th>
@@ -300,20 +334,35 @@ export default function PaymentsPage() {
             </thead>
 
             <tbody>
+
               {filteredPayments.length > 0 ? (
+
                 filteredPayments.map(item => (
+
                   <tr key={item.id}>
-                    <td><strong>{item.paymentId}</strong></td>
-                    <td>{item.appointmentId}</td>
-                    <td>{item.patient}</td>
-                    <td>{formatAmount(item.amount)}</td>
-                    <td>{item.method}</td>
-                    <td>{item.date}</td>
+
                     <td>
-                      <span className={`payment-status ${item.status.toLowerCase()}`}>
+                      <strong>{item.paymentId}</strong>
+                    </td>
+
+                    <td>{item.appointmentId}</td>
+
+                    <td>{item.patient}</td>
+
+                    <td>{formatAmount(item.amount)}</td>
+
+                    <td>{item.method}</td>
+
+                    <td>{item.date}</td>
+
+                    <td>
+                      <span
+                        className={`payment-status ${item.status.toLowerCase()}`}
+                      >
                         {item.status}
                       </span>
                     </td>
+
                     <td>
                       <select
                         className="payment-status-select"
@@ -323,24 +372,35 @@ export default function PaymentsPage() {
                         }
                         aria-label={`Update payment status for ${item.paymentId}`}
                       >
-                        <option>Pending</option>
-                        <option>Paid</option>
-                        <option>Refunded</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Paid">Paid</option>
                       </select>
                     </td>
+
                   </tr>
+
                 ))
+
               ) : (
+
                 <tr>
                   <td colSpan="8" className="payment-empty">
                     No payment records found.
                   </td>
                 </tr>
+
               )}
+
             </tbody>
+
           </table>
+
         </div>
+
       </section>
+
     </main>
   );
 }
+
+

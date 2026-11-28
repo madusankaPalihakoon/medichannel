@@ -1,0 +1,18 @@
+BEGIN;
+
+ALTER TABLE users
+    ALTER COLUMN full_name TYPE TEXT;
+
+ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS failed_login_attempts INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS locked_until TIMESTAMPTZ,
+    ADD COLUMN IF NOT EXISTS password_change_required BOOLEAN NOT NULL DEFAULT FALSE;
+
+ALTER TABLE patients
+    ALTER COLUMN date_of_birth TYPE TEXT
+        USING date_of_birth::TEXT;
+
+ALTER TABLE audit_logs
+    ADD COLUMN IF NOT EXISTS ip_address VARCHAR(64);
+
+COMMIT;

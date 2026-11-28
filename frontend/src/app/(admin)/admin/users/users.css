@@ -33,7 +33,7 @@
 
 .users-back {
   padding: 12px 18px;
-  background: #6d4aff;
+  background: #1c3b55;
   color: white;
   text-decoration: none;
   border-radius: 8px;
@@ -84,7 +84,7 @@
 
 .users-add-button {
   padding: 12px;
-  background: #6d4aff;
+  background: #1c3b55;
   color: white;
   border: none;
   border-radius: 7px;
@@ -179,3 +179,107 @@
     align-items: flex-start;
   }
 }
+
+
+/* Password Reset Modal */
+
+.reset-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  z-index: 1000;
+}
+
+.reset-modal {
+  position: relative;
+  background: white;
+  width: 100%;
+  max-width: 450px;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.2);
+}
+
+.reset-modal h2 {
+  margin-bottom: 10px;
+  color: #172554;
+}
+
+.reset-modal > p {
+  color: #64748b;
+  margin-bottom: 20px;
+}
+
+.reset-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  border: none;
+  background: transparent;
+  font-size: 28px;
+  cursor: pointer;
+  color: #64748b;
+}
+
+.reset-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: #f1f5f9;
+  padding: 14px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.reset-user-info span {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.reset-modal .users-field {
+  margin-bottom: 16px;
+}
+
+.reset-message {
+  background: #eff6ff;
+  color: #1d4ed8;
+  padding: 12px;
+  border-radius: 7px;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.reset-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.reset-cancel-button {
+  background: #e2e8f0;
+  color: #334155;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .reset-modal {
+    padding: 22px;
+  }
+
+  .reset-modal-actions {
+    flex-direction: column;
+  }
+
+  .reset-modal-actions button {
+    width: 100%;
+  }
+}
+

@@ -30,13 +30,14 @@ export default function AdminDashboard() {
             <p>Create and manage staff accounts.</p>
           </a>
 
-          <div className="admin-card">
+          <a href="/admin/audit-logs" className="admin-card">
             <span>📋</span>
             <h3>Audit Log</h3>
             <p>View administrative activity records.</p>
-          </div>
+          </a>
         </div>
       </section>
     </main>
   );
 }
+

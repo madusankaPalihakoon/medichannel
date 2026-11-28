@@ -35,6 +35,13 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid #e8eaf0;
+  border-radius: 10px;
+  background: white;
 }
 
 .doctor-avatar {
@@ -44,7 +51,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: #2563eb;
+  background: #1c3b55;
   color: white;
   font-weight: bold;
 }
@@ -122,7 +129,7 @@
   padding: 10px 16px;
   border: none;
   border-radius: 7px;
-  background: #2563eb;
+  background: #1c3b55;
   color: white;
   cursor: pointer;
 }
@@ -181,8 +188,8 @@
 .action-list a {
   padding: 12px 18px;
   border-radius: 7px;
-  background: #eff6ff;
-  color: #1d4ed8;
+  background: #1c3b55e4;
+  color: #eff6ff;
   text-decoration: none;
   font-weight: bold;
 }

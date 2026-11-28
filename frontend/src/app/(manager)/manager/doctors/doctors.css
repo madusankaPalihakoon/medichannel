@@ -34,8 +34,8 @@
 .manager-back-button {
   padding: 11px 17px;
   border-radius: 8px;
-  background: #eee8fa;
-  color: #6941b5;
+  background: #1c3b55;
+  color: #ffffff;
   text-decoration: none;
   font-weight: bold;
 }
@@ -95,7 +95,7 @@
   padding: 12px 17px;
   border: none;
   border-radius: 8px;
-  background: #7554c8;
+  background: #1c3b55;
   color: white;
   font-weight: bold;
   cursor: pointer;
